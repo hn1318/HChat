@@ -1,0 +1,36 @@
+{
+  "name": "hchat-server-sdk-node",
+  "version": "0.1.0",
+  "description": "HChat 服务端 SDK（Node）：签发短期 Token、校验 Webhook 签名",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "hchat",
+    "webhook",
+    "jwt",
+    "chat"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hchat-shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "vitest": "^3.0.5"
+  }
+}

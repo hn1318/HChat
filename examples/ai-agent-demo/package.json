@@ -1,0 +1,20 @@
+{
+  "name": "hchat-example-ai-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "HChat 示例：服务端签发 Token + C2AI 流式对话命令行演示",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json && node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "hchat-core-sdk": "workspace:*",
+    "hchat-server-sdk-node": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1"
+  }
+}

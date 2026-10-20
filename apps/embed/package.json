@@ -1,0 +1,26 @@
+{
+  "name": "hchat-embed",
+  "version": "0.1.0",
+  "private": true,
+  "description": "HChat iframe 嵌入页：独立构建，通过 postMessage 与宿主通信",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview --port 5174"
+  },
+  "dependencies": {
+    "hchat-react-chat": "workspace:*",
+    "hchat-shared-types": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.1.0"
+  }
+}

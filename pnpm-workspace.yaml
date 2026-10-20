@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  - 'examples/*'
+
+# pnpm 10+ 默认拦截依赖的安装脚本；esbuild / vue-demi 需要执行 postinstall 才能正常工作
+allowBuilds:
+  esbuild: true
+  vue-demi: true

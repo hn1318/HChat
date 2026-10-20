@@ -1,0 +1,10 @@
+apiVersion: v2
+name: hchat
+description: HChat 自托管聊天基础设施（服务端 + 可选前端）
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/hchat-open/hchat
+sources:
+  - https://github.com/hchat-open/hchat
+license: Apache-2.0

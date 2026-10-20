@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hchat_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+hchat:
+  dev-mode: true
+  jwt:
+    secret: hchat-test-secret-do-not-use-in-production
+  limits:
+    enabled: false
+    recall-window-seconds: 120
+  storage:
+    driver: local
+    local-dir: target/test-uploads
+  ai:
+    provider: mock
+  redis:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.hchat: INFO

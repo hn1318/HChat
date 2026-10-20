@@ -1,0 +1,43 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+*.tsbuildinfo
+.turbo/
+coverage/
+
+# Java
+server/target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# 运行数据
+.data/
+uploads/
+*.h2.db
+*.trace.db
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# 编辑器 / 系统
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+
+# ESLint 缓存
+.eslintcache

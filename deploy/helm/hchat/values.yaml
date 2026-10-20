@@ -1,0 +1,59 @@
+# 首期只覆盖「服务端 + MySQL 外部依赖」的最小可用形态；
+# 生产建议自行接入托管 MySQL / Redis / S3。
+
+replicaCount: 1
+
+image:
+  repository: hchat/server
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: nginx
+  host: chat.example.com
+  tlsSecret: ""
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 1Gi
+
+# 必填：数据库与鉴权密钥
+env:
+  DATABASE_URL: "jdbc:mysql://mysql:3306/hchat?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
+  DATABASE_USERNAME: hchat
+  DATABASE_PASSWORD: change-me
+  JWT_SECRET: change-me-at-least-32-bytes-long
+  DEFAULT_TENANT_ID: default
+  PUBLIC_BASE_URL: "https://chat.example.com"
+  CORS_ORIGINS: "https://app.example.com"
+  DEV_MODE: "false"
+  FLYWAY_LOCATIONS: "classpath:db/migration"
+  AI_PROVIDER: mock
+  AI_BASE_URL: "https://api.openai.com/v1"
+  AI_API_KEY: ""
+  AI_MODEL: gpt-4o-mini
+  STORAGE_DRIVER: local
+  STORAGE_LOCAL_DIR: /app/.data/uploads
+  RATE_LIMIT_ENABLED: "true"
+  REDIS_ENABLED: "false"
+  REDIS_URL: ""
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

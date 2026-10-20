@@ -1,0 +1,30 @@
+{
+  "name": "hchat-core-sdk",
+  "version": "0.1.0",
+  "description": "HChat 框架无关客户端 SDK：REST + WebSocket + SSE，自动重连与事件订阅",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hchat-shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}

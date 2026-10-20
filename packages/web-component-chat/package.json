@@ -1,0 +1,31 @@
+{
+  "name": "hchat-web-component-chat",
+  "version": "0.1.0",
+  "description": "HChat Web Component：<hchat-widget>，任意框架/原生页面可用",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/hchat-web-component-chat.umd.cjs",
+  "module": "./dist/hchat-web-component-chat.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hchat-web-component-chat.js",
+      "require": "./dist/hchat-web-component-chat.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "hchat-core-sdk": "workspace:*",
+    "hchat-shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
+}

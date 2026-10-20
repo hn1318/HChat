@@ -1,0 +1,37 @@
+{
+  "name": "hchat-react-chat",
+  "version": "0.1.0",
+  "description": "HChat React 聊天组件：会话列表 / 聊天窗口 / 输入框 / 可嵌入 Widget",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/copy-assets.mjs src/styles.css dist/styles.css",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "hchat-core-sdk": "workspace:*",
+    "hchat-shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

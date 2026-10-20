@@ -1,0 +1,38 @@
+{
+  "name": "hchat-vue-chat",
+  "version": "0.1.0",
+  "description": "HChat Vue 3 聊天组件：与 React 版本 API 对齐",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/hchat-vue-chat.umd.cjs",
+  "module": "./dist/hchat-vue-chat.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hchat-vue-chat.js",
+      "require": "./dist/hchat-vue-chat.umd.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/copy-assets.mjs src/styles.css dist/styles.css",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
+  "dependencies": {
+    "hchat-core-sdk": "workspace:*",
+    "hchat-shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.1.0",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  }
+}
