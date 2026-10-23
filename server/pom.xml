@@ -16,6 +16,39 @@
   <version>0.1.0</version>
   <name>hchat-server</name>
   <description>HChat self-hosted chat infrastructure server</description>
+  <url>https://github.com/hchat-dev/hchat</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>hchat</id>
+      <name>HChat contributors</name>
+      <url>https://github.com/hchat-dev/hchat</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/hchat-dev/hchat.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/hchat-dev/hchat.git</developerConnection>
+    <url>https://github.com/hchat-dev/hchat/tree/main/server</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <!-- 快照走 Central Portal；正式版由 central-publishing-maven-plugin 上传 -->
+  <distributionManagement>
+    <snapshotRepository>
+      <id>central</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <java.version>21</java.version>
@@ -23,6 +56,9 @@
     <jjwt.version>0.12.6</jjwt.version>
     <springdoc.version>2.8.17</springdoc.version>
     <aws-sdk.version>2.31.78</aws-sdk.version>
+    <!-- 发布行为：-Dcentral.autoPublish=false 改成人工在 portal 点发布 -->
+    <central.autoPublish>true</central.autoPublish>
+    <central.waitUntil>published</central.waitUntil>
   </properties>
 
   <dependencyManagement>
@@ -177,6 +213,87 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludedGroups combine.self="override"/>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      mvn deploy -P release：发布到 Maven Central（Central Portal）
+
+      前置：
+        1. settings.xml（或 CI 注入）里配 <server><id>central</id> 的 User Token
+        2. GPG 私钥已导入（CI 用 MAVEN_GPG_PRIVATE_KEY + MAVEN_GPG_PASSPHRASE）
+      本地只想验证配置能否跑通：mvn verify -P release -Dgpg.skip
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.12.0</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <doclint>none</doclint>
+                  <failOnError>false</failOnError>
+                  <quiet>true</quiet>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.8</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.12.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>${central.autoPublish}</autoPublish>
+              <waitUntil>${central.waitUntil}</waitUntil>
+              <deploymentName>hchat-server ${project.version}</deploymentName>
             </configuration>
           </plugin>
         </plugins>

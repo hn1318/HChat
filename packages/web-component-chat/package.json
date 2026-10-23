@@ -2,7 +2,24 @@
   "name": "hchat-web-component-chat",
   "version": "0.1.0",
   "description": "HChat Web Component：<hchat-widget>，任意框架/原生页面可用",
+  "keywords": [
+    "hchat",
+    "chat",
+    "web-component",
+    "custom-element",
+    "widget"
+  ],
   "license": "Apache-2.0",
+  "author": "HChat contributors",
+  "homepage": "https://github.com/hchat-dev/hchat/tree/main/packages/web-component-chat#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hchat-dev/hchat.git",
+    "directory": "packages/web-component-chat"
+  },
+  "bugs": {
+    "url": "https://github.com/hchat-dev/hchat/issues"
+  },
   "type": "module",
   "main": "./dist/hchat-web-component-chat.umd.cjs",
   "module": "./dist/hchat-web-component-chat.js",
@@ -17,6 +34,13 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -21,7 +21,12 @@
     "server:it": "mvn -f server/pom.xml verify -Pit",
     "demo": "node examples/ai-agent-demo/dist/index.js",
     "compose:up": "docker compose -f deploy/docker-compose.yml up --build",
-    "compose:down": "docker compose -f deploy/docker-compose.yml down -v"
+    "compose:down": "docker compose -f deploy/docker-compose.yml down -v",
+    "release:prepare": "node scripts/prepare-release.mjs",
+    "release:check": "node scripts/release-check.mjs",
+    "release:pack": "node scripts/prepare-release.mjs && node scripts/pack-check.mjs",
+    "release:npm": "pnpm -r --filter \"./packages/**\" publish --access public --no-git-checks",
+    "release:maven": "mvn -f server/pom.xml -B deploy -P release"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

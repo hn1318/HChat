@@ -4,6 +4,7 @@ import decisionsRaw from '../../../DECISIONS.md?raw';
 import integrationRaw from '../../../docs/integration.md?raw';
 import pluginRaw from '../../../docs/plugin-development.md?raw';
 import protocolRaw from '../../../docs/protocol.md?raw';
+import releaseRaw from '../../../docs/release.md?raw';
 import securityRaw from '../../../docs/security.md?raw';
 import selfHostingRaw from '../../../docs/self-hosting.md?raw';
 import './style.css';
@@ -21,6 +22,7 @@ const DOCS: DocEntry[] = [
   { id: 'self-hosting', title: '自托管', content: selfHostingRaw },
   { id: 'security', title: '安全', content: securityRaw },
   { id: 'plugin', title: '插件开发', content: pluginRaw },
+  { id: 'release', title: '发布', content: releaseRaw },
   { id: 'decisions', title: '技术决策', content: decisionsRaw },
 ];
 

@@ -4,6 +4,7 @@
 > 后端 Spring Boot + MySQL，前端框架无关 SDK + React / Vue / Web Component / iframe 四套组件。
 
 [![CI](https://img.shields.io/badge/CI-server%20%2B%20web-brightgreen)](.github/workflows/ci.yml)
+[![Release](https://img.shields.io/badge/release-tag%20driven-blueviolet)](.github/workflows/release.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-21-orange)](server/pom.xml)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-green)](package.json)
@@ -112,7 +113,9 @@ deploy/
 scripts/
   smoke.mjs             接口级 E2E（C2C + WS + SSE）
   ui-check.mjs          Chrome CDP 真实浏览器 E2E（双身份实时聊天）
-docs/                   protocol / integration / self-hosting / security / plugin-development
+  release-check.mjs     发布前一致性检查（版本 / 元信息 / tag）
+  pack-check.mjs        真跑 pnpm pack 并校验 tarball 内容
+docs/                   protocol / integration / self-hosting / security / plugin-development / release
 DECISIONS.md            选型理由 + 未实现项
 ```
 
@@ -170,6 +173,22 @@ node scripts/ui-check.mjs
 - Webhook HMAC 签名（含跨语言参考向量）、重试退避、事件订阅过滤
 - 前端 SDK 的 URL 拼接、错误归一化、SSE 跨分片解析
 
+## 发布
+
+打 tag 触发 [`.github/workflows/release.yml`](.github/workflows/release.yml)：先校验版本/元信息，再并行发布
+6 个前端包到 npm、服务端到 Maven Central，最后推容器镜像到 GHCR。
+
+```bash
+pnpm release:check                                  # 版本、元信息、exports 产物
+pnpm release:pack                                   # 真打一次 tarball 并解开校验
+mvn -f server/pom.xml verify -P release -Dgpg.skip  # 验证 sources / javadoc 附件
+
+git tag v0.1.0 && git push origin main --tags       # 触发发布
+```
+
+一个版本号管住三处（`packages/*/package.json`、`server/pom.xml`、tag），不一致会被 `release:check` 拦下。
+首次配置（npm token、Central namespace、GPG 私钥）见 [docs/release.md](docs/release.md)。
+
 ## 文档
 
 | 文档 | 内容 |
@@ -179,6 +198,7 @@ node scripts/ui-check.mjs
 | [docs/self-hosting.md](docs/self-hosting.md) | Docker Compose、环境变量、生产建议、FAQ |
 | [docs/security.md](docs/security.md) | Token、密钥、CORS、限流、iframe origin、上线清单 |
 | [docs/plugin-development.md](docs/plugin-development.md) | 如何实现 AI / 存储 / 通知插件 |
+| [docs/release.md](docs/release.md) | 发布流程：npm、Maven Central、GHCR、失败处理 |
 | [DECISIONS.md](DECISIONS.md) | 技术选型理由与未实现项 |
 
 ## 当前状态
@@ -188,7 +208,8 @@ node scripts/ui-check.mjs
 - ✅ P2 core-sdk + react-chat + playground
 - ✅ P3 AI Agent + SSE 流式 + ai-agent-demo
 - ✅ P4 Vue / Web Component / iframe / server-sdk-node / Webhook / 文档
-- ⏭️ P5 校书淘示例与发布 —— 本轮按要求跳过（详见 `DECISIONS.md`）
+- ✅ 发布流水线：npm（6 个包，带 provenance）+ Maven Central + GHCR 镜像
+- ⏭️ P5 校书淘示例 —— 本轮按要求跳过（详见 `DECISIONS.md`）
 
 ## License
 

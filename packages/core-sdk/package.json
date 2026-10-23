@@ -2,7 +2,25 @@
   "name": "hchat-core-sdk",
   "version": "0.1.0",
   "description": "HChat 框架无关客户端 SDK：REST + WebSocket + SSE，自动重连与事件订阅",
+  "keywords": [
+    "hchat",
+    "chat",
+    "sdk",
+    "websocket",
+    "sse",
+    "im"
+  ],
   "license": "Apache-2.0",
+  "author": "HChat contributors",
+  "homepage": "https://github.com/hchat-dev/hchat/tree/main/packages/core-sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hchat-dev/hchat.git",
+    "directory": "packages/core-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/hchat-dev/hchat/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,6 +34,13 @@
     "dist"
   ],
   "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

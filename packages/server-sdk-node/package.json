@@ -2,7 +2,24 @@
   "name": "hchat-server-sdk-node",
   "version": "0.1.0",
   "description": "HChat 服务端 SDK（Node）：签发短期 Token、校验 Webhook 签名",
+  "keywords": [
+    "hchat",
+    "chat",
+    "webhook",
+    "jwt",
+    "server-sdk"
+  ],
   "license": "Apache-2.0",
+  "author": "HChat contributors",
+  "homepage": "https://github.com/hchat-dev/hchat/tree/main/packages/server-sdk-node#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hchat-dev/hchat.git",
+    "directory": "packages/server-sdk-node"
+  },
+  "bugs": {
+    "url": "https://github.com/hchat-dev/hchat/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,12 +32,14 @@
   "files": [
     "dist"
   ],
-  "keywords": [
-    "hchat",
-    "webhook",
-    "jwt",
-    "chat"
-  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

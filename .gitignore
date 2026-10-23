@@ -41,3 +41,6 @@ npm-debug.log*
 
 # ESLint 缓存
 .eslintcache
+
+# 发布前由 scripts/prepare-release.mjs 从根目录复制
+packages/*/LICENSE

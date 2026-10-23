@@ -67,6 +67,13 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # 发布契约：元信息齐全 + 真打一次 tarball 校验内容（不需要 npm token）
+      - name: Release metadata check
+        run: pnpm release:prepare && node scripts/release-check.mjs
+
+      - name: Pack check
+        run: pnpm release:pack
+
   docker:
     name: Docker images
     runs-on: ubuntu-latest

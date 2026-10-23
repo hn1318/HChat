@@ -1,0 +1,183 @@
+name: Release
+
+# 打 tag 触发（v0.1.0），也可手动指定发布哪一部分。
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish_npm:
+        description: 发布前端包到 npm
+        type: boolean
+        default: true
+      publish_maven:
+        description: 发布服务端到 Maven Central
+        type: boolean
+        default: true
+      publish_images:
+        description: 推送容器镜像到 GHCR
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "12"
+  JAVA_VERSION: "21"
+
+jobs:
+  check:
+    name: 发布检查（版本 / 元信息 / tag）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # 校验：6 个包版本一致、server/pom.xml 同版本、元信息齐全、workspace 协议、tag 对齐
+      - name: Metadata check
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: node scripts/release-check.mjs --tag "$TAG"
+
+  npm:
+    name: npm（packages/*）
+    needs: check
+    if: ${{ github.event_name == 'push' || inputs.publish_npm }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # npm provenance（--provenance）需要 OIDC token
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint / typecheck / test / build
+        run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
+
+      # 真正打一次 tarball，确认产物、README、LICENSE 都在，且 workspace:* 已替换成具体版本
+      - name: Pack check
+        run: pnpm release:pack
+
+      # pnpm -r publish 按依赖拓扑发布：shared-types → core-sdk → react/vue/web-component → server-sdk-node
+      # publishConfig.registry 固定指向 registry.npmjs.org，不受 .npmrc 里的镜像源影响
+      - name: Publish to npm
+        run: pnpm -r --filter "./packages/**" publish --access public --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  maven:
+    name: Maven Central（server）
+    needs: check
+    if: ${{ github.event_name == 'push' || inputs.publish_maven }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 21 + GPG
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      # -Pit：额外跑 Testcontainers 集成测试；-Prelease：附带 sources/javadoc/gpg 并发布
+      - name: Deploy to Maven Central
+        working-directory: server
+        run: mvn -B deploy -Pit,release
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+  images:
+    name: 容器镜像（GHCR）
+    needs: [npm, maven]
+    if: ${{ !failure() && !cancelled() && (github.event_name == 'push' || inputs.publish_images) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Server image metadata
+        id: server-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/hchat-server
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest
+
+      - name: Build & push server
+        uses: docker/build-push-action@v6
+        with:
+          context: server
+          push: true
+          tags: ${{ steps.server-meta.outputs.tags }}
+          labels: ${{ steps.server-meta.outputs.labels }}
+
+      - name: Playground image metadata
+        id: web-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/hchat-playground
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest
+
+      - name: Build & push playground
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.web
+          push: true
+          build-args: |
+            APP=playground
+          tags: ${{ steps.web-meta.outputs.tags }}
+          labels: ${{ steps.web-meta.outputs.labels }}

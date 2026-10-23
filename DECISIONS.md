@@ -88,12 +88,22 @@ IM 场景写入频繁、跨表删除少，全部表不建外键，一致性由�
 开启后 `WsBroadcaster` 换成 Pub/Sub 版本，在线状态落 Redis 键（TTL 90s 心跳续期）。
 `REDIS_URL` 支持 `redis://[:password@]host:port[/db]`，解析在 `RedisConfig#parseUrl`。
 
+### D15 发布：单一版本号 + tag 驱动
+
+- **版本**：6 个前端包与 `server/pom.xml` 共用一个版本号，`release-check` 校验「包版本 == pom 版本 == tag」，不一致直接 fail，避免"测试全绿、发出去版本对不上"
+- **npm**：包间依赖一律写 `workspace:*`，由 `pnpm publish` 打包时替换成具体版本（发布出去的 tarball 里不含 `workspace:`）；`publishConfig.registry` 固定 `registry.npmjs.org`，避免仓库 `.npmrc` 的镜像源把包发错地方；`pnpm -r publish` 按依赖拓扑依次发；CI 带 `--provenance`
+- **Maven**：`mvn deploy -P release`，profile 里挂 `maven-source-plugin` / `maven-javadoc-plugin` / `maven-gpg-plugin` 与 `central-publishing-maven-plugin`（Central Portal + User Token）。不用已下线的 OSSRH `nexus-staging`；`-Dcentral.autoPublish=false` 可切成人工在 portal 点发布
+- **LICENSE**：npm 只收包目录内的 LICENSE，仓库里不存 6 份副本，改为打包前由 `scripts/prepare-release.mjs` 从根目录复制
+- **可验证**：`scripts/pack-check.mjs` 真的跑一次 `pnpm pack` 并解开 tarball，断言产物存在、元信息完整、`workspace:` 已替换——比只看 `files` 配置可靠
+- 代价：版本号手工维护（未引入 changesets）；`--provenance` 要求公开仓库 + OIDC；发布的服务端是可执行 fat jar，不适合被当库依赖
+
 ## 未实现 / 已知限制
 
 | 项 | 现状 | 建议 |
 | --- | --- | --- |
 | P5 校书淘示例（`examples/xiaoshutao-c2c`） | **按本轮要求跳过** | 目录未创建；如需，按 `docs/integration.md` 的 `ChatWidget` 示例即可复刻 |
-| 发布/打包到 npm 与 Maven Central | 未做 | 包已配好 `exports` / `files`，补 CI 发布流水线即可 |
+| 版本号管理 | 6 个 `package.json` + `server/pom.xml` 手工同步 | 包需要独立发版节奏时引入 changesets；当前由 `pnpm release:check` 兜底 |
+| 容器镜像签名 / SBOM | 只推 GHCR tag | 补 cosign 签名与 syft SBOM（或用 build-push-action 的 attestations） |
 | 限流的分布式一致性 | 进程内令牌桶 | 多实例时在网关层加一层全局限流，或改为 Redis 计数 |
 | 消息全文检索 | 未做 | 引入 ES / MySQL ngram 索引，走 outbox 同步 |
 | 会话级权限（仅创建者可加成员等） | 任何成员都能加成员 | 需要更细的 RBAC 时在 `ConversationService#addMember` 加校验 |

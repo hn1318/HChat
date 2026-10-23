@@ -2,7 +2,25 @@
   "name": "hchat-vue-chat",
   "version": "0.1.0",
   "description": "HChat Vue 3 聊天组件：与 React 版本 API 对齐",
+  "keywords": [
+    "hchat",
+    "chat",
+    "vue",
+    "vue3",
+    "component",
+    "widget"
+  ],
   "license": "Apache-2.0",
+  "author": "HChat contributors",
+  "homepage": "https://github.com/hchat-dev/hchat/tree/main/packages/vue-chat#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hchat-dev/hchat.git",
+    "directory": "packages/vue-chat"
+  },
+  "bugs": {
+    "url": "https://github.com/hchat-dev/hchat/issues"
+  },
   "type": "module",
   "main": "./dist/hchat-vue-chat.umd.cjs",
   "module": "./dist/hchat-vue-chat.js",
@@ -18,6 +36,13 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/copy-assets.mjs src/styles.css dist/styles.css",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json"

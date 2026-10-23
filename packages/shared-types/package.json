@@ -2,7 +2,25 @@
   "name": "hchat-shared-types",
   "version": "0.1.0",
   "description": "HChat 共享类型与运行时校验（REST / WebSocket / SSE 契约）",
+  "keywords": [
+    "hchat",
+    "chat",
+    "types",
+    "schema",
+    "zod",
+    "websocket"
+  ],
   "license": "Apache-2.0",
+  "author": "HChat contributors",
+  "homepage": "https://github.com/hchat-dev/hchat/tree/main/packages/shared-types#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hchat-dev/hchat.git",
+    "directory": "packages/shared-types"
+  },
+  "bugs": {
+    "url": "https://github.com/hchat-dev/hchat/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,6 +34,13 @@
     "dist"
   ],
   "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
