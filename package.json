@@ -1,6 +1,6 @@
 {
   "name": "hchat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "HChat - 可自托管的聊天基础设施（C2C / C2AI / AI 辅助），后端 Spring Boot，前端多形态 SDK",
   "license": "Apache-2.0",

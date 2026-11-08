@@ -1,6 +1,6 @@
 {
   "name": "hchat-core-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HChat 框架无关客户端 SDK：REST + WebSocket + SSE，自动重连与事件订阅",
   "keywords": [
     "hchat",

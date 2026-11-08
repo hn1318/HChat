@@ -47,7 +47,7 @@ public class HealthController {
         }
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("status", Boolean.TRUE.equals(db.get("ok")) ? "ok" : "degraded");
-        body.put("version", "0.1.0");
+        body.put("version", "0.1.1");
         body.put("time", Times.now().toString());
         body.put("database", db);
         body.put("storage", storage.name());

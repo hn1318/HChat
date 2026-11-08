@@ -16,7 +16,7 @@ check（版本/元信息/tag 对齐） ──┬─► npm     6 个前端包 �
 | ------- | --------------------------------------------- |
 | 前端包     | `packages/*/package.json` 的 `version`（6 个包统一） |
 | 服务端     | `server/pom.xml` 的 `<version>`                |
-| Git tag | `v<version>`，例如 `v0.1.0`                      |
+| Git tag | `v<version>`，例如 `v0.1.1`                      |
 
 `node scripts/release-check.mjs --tag "$TAG"` 会逐项校验，不一致直接失败（CI 第一步就是它）。  
 包之间用 `workspace:*` 引用，`pnpm publish` 时会自动替换成当前版本，仓库里不写死版本号。
@@ -112,8 +112,8 @@ pnpm release:pack
 mvn -f server/pom.xml verify -P release -Dgpg.skip
 
 # 3. 提交并打 tag
-git commit -am "chore: release v0.1.0"
-git tag v0.1.0
+git commit -am "chore: release v0.1.1"
+git tag v0.1.1
 git push origin main --tags
 ```
 
@@ -126,7 +126,7 @@ git push origin main --tags
 | `pnpm release:check`                                 | 元信息、版本、依赖协议、exports 产物是否存在                         |
 | `pnpm release:prepare`                               | 把根目录 `LICENSE` 复制进 6 个包（npm 只收包目录内的 LICENSE）       |
 | `pnpm release:pack`                                  | 真跑 `pnpm pack`，解开 tarball 校验内容；产物在 `.data/pack/`   |
-| `pnpm release:pack` 之后                               | `tar -tzf .data/pack/hchat-core-sdk-0.1.0.tgz` 肉眼看 |
+| `pnpm release:pack` 之后                               | `tar -tzf .data/pack/hchat-core-sdk-0.1.1.tgz` 肉眼看 |
 | `mvn -f server/pom.xml verify -P release -Dgpg.skip` | 验证 sources / javadoc 附件能生成（跳过签名）                  |
 
 想连签名一起验证（Linux / CI 环境）：

@@ -1,6 +1,6 @@
 {
   "name": "hchat-server-sdk-node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HChat 服务端 SDK（Node）：签发短期 Token、校验 Webhook 签名",
   "keywords": [
     "hchat",

@@ -1,6 +1,6 @@
 {
   "name": "hchat-web-component-chat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HChat Web Component：<hchat-widget>，任意框架/原生页面可用",
   "keywords": [
     "hchat",

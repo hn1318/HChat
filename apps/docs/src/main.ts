@@ -40,7 +40,7 @@ app.innerHTML = `
       <nav class="docs__nav">
         ${DOCS.map((doc) => `<a href="#${doc.id}" data-doc="${doc.id}">${doc.title}</a>`).join('')}
       </nav>
-      <div class="docs__footer">Apache-2.0 · v0.1.0</div>
+      <div class="docs__footer">Apache-2.0 · v0.1.1</div>
     </aside>
     <main class="docs__content markup" id="content"></main>
   </div>

@@ -13,7 +13,7 @@
 
   <groupId>top.hn3.hchat</groupId>
   <artifactId>hchat-server</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <name>hchat-server</name>
   <description>HChat self-hosted chat infrastructure server</description>
   <url>https://github.com/hn1318/HChat</url>

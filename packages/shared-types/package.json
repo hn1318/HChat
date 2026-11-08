@@ -1,6 +1,6 @@
 {
   "name": "hchat-shared-types",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HChat 共享类型与运行时校验（REST / WebSocket / SSE 契约）",
   "keywords": [
     "hchat",

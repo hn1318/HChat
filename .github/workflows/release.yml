@@ -1,6 +1,6 @@
 name: Release
 
-# 打 tag 触发（v0.1.0），也可手动指定发布哪一部分。
+# 打 tag 触发（v0.1.1），也可手动指定发布哪一部分。
 on:
   push:
     tags:
@@ -49,6 +49,10 @@ jobs:
 
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      # LICENSE 由 prepare-release 从根目录复制进 6 个包（npm 只收包目录内的 LICENSE）
+      - name: Copy LICENSE into packages
+        run: pnpm release:prepare
 
       # 校验：6 个包版本一致、server/pom.xml 同版本、元信息齐全、workspace 协议、tag 对齐
       - name: Metadata check

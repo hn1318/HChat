@@ -1,6 +1,6 @@
 {
   "name": "hchat-embed",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "HChat iframe 嵌入页：独立构建，通过 postMessage 与宿主通信",
   "license": "Apache-2.0",

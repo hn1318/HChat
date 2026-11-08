@@ -1,6 +1,6 @@
 {
   "name": "hchat-playground",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "HChat 本地体验页：登录、建会话、实时聊天、AI 流式",
   "license": "Apache-2.0",

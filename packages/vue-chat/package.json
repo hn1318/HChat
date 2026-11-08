@@ -1,6 +1,6 @@
 {
   "name": "hchat-vue-chat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HChat Vue 3 聊天组件：与 React 版本 API 对齐",
   "keywords": [
     "hchat",

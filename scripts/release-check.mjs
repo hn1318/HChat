@@ -2,8 +2,8 @@
  * 发布前的一致性检查：包元信息、版本、依赖协议、导出产物、tag 对齐。
  *
  *   node scripts/release-check.mjs
- *   node scripts/release-check.mjs --tag v0.1.0     # 校验 tag 与版本一致（CI 用）
- *   GITHUB_REF_NAME=v0.1.0 node scripts/release-check.mjs
+ *   node scripts/release-check.mjs --tag v0.1.1     # 校验 tag 与版本一致（CI 用）
+ *   GITHUB_REF_NAME=v0.1.1 node scripts/release-check.mjs
  *
  * 任何一项不满足都会以非 0 退出，避免「构建能过、发布才发现元信息缺失」。
  */
@@ -22,6 +22,10 @@ import {
 
 const errors = [];
 const warnings = [];
+
+// CI 的 check job 只做元信息校验、不构建；产物由 npm job 的 build + release:pack 真打 tarball 断言。
+// 所以带 --tag 时不再刷「dist 不存在」，本地直接运行仍会提示。
+const ciTagMode = process.argv.includes('--tag') || Boolean(process.env.GITHUB_REF_NAME);
 
 function fail(message) {
   errors.push(message);
@@ -136,7 +140,9 @@ for (const item of packages) {
   // 产物检查只在已经构建过时执行，避免把「没 build」误报成配置错误
   const distDir = join(absDir, 'dist');
   if (!existsSync(distDir)) {
-    warn(at('尚未构建（dist 不存在），发布前需先 pnpm build'));
+    if (!ciTagMode) {
+      warn(at('尚未构建（dist 不存在），发布前需先 pnpm build'));
+    }
     continue;
   }
   for (const [key, target] of Object.entries(pkg.exports ?? {})) {
