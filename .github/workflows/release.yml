@@ -29,7 +29,6 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
-  PNPM_VERSION: "12"
   JAVA_VERSION: "21"
 
 jobs:
@@ -39,9 +38,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 版本取根 package.json 的 "packageManager": "pnpm@12.6.0"（唯一来源）。
+      # 不要在此写 with.version，否则 action-setup 会报 "Multiple versions of pnpm specified"。
       - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
@@ -69,9 +68,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 版本取根 package.json 的 "packageManager": "pnpm@12.6.0"（唯一来源）。
+      # 不要在此写 with.version，否则 action-setup 会报 "Multiple versions of pnpm specified"。
       - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:

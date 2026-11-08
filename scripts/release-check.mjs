@@ -7,13 +7,14 @@
  *
  * 任何一项不满足都会以非 0 退出，避免「构建能过、发布才发现元信息缺失」。
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
   DEP_FIELDS,
   MAVEN_NAMESPACE,
   publishablePackages,
+  readJson,
   repoRoot,
   serverGroupId,
   serverVersion,
@@ -147,6 +148,40 @@ for (const item of packages) {
       const file = join(absDir, entry);
       if (!existsSync(file)) {
         fail(at(`exports["${key}"] 指向的文件不存在：${entry}`));
+      }
+    }
+  }
+}
+
+// pnpm 版本只能由根 package.json 的 packageManager 决定：pnpm/action-setup@v4
+// 同时检测到 with.version 与 packageManager 会抛 "Multiple versions of pnpm specified"
+// (ERR_PNPM_BAD_PM_VERSION)；反过来删掉 packageManager 又会让 corepack / Docker 失去锁版本能力。
+const rootPkg = readJson(join(repoRoot, 'package.json'));
+if (typeof rootPkg.packageManager !== 'string' || !rootPkg.packageManager.startsWith('pnpm@')) {
+  fail('根 package.json 缺少 packageManager: pnpm@x.y.z（action-setup / corepack / Dockerfile.web 都依赖它）');
+}
+
+const workflowDir = join(repoRoot, '.github/workflows');
+if (existsSync(workflowDir)) {
+  for (const file of readdirSync(workflowDir).filter((name) => /\.ya?ml$/.test(name))) {
+    const lines = readFileSync(join(workflowDir, file), 'utf8').split(/\r?\n/);
+    for (let i = 0; i < lines.length; i += 1) {
+      if (!/uses:\s*pnpm\/action-setup@/.test(lines[i])) {
+        continue;
+      }
+      const stepIndent = (lines[i].match(/^\s*/) ?? [''])[0].length;
+      for (let j = i + 1; j < lines.length; j += 1) {
+        const line = lines[j];
+        const indent = (line.match(/^\s*/) ?? [''])[0].length;
+        if (line.trim() !== '' && indent <= stepIndent) {
+          break; // 已进入下一个 step
+        }
+        if (/^\s*(?:-\s*)?version\s*:/.test(line)) {
+          fail(
+            `.github/workflows/${file}: pnpm/action-setup 不要写 version，` +
+              '版本由根 package.json 的 packageManager 决定（否则 CI 报 Multiple versions of pnpm specified）',
+          );
+        }
       }
     }
   }
