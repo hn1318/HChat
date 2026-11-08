@@ -11,7 +11,8 @@
     <relativePath/>
   </parent>
 
-  <groupId>com.hchat</groupId>
+  <!-- Maven Central 已验证的 namespace；groupId 必须与 portal 里的 namespace 完全一致 -->
+  <groupId>top.hn3.hchat</groupId>
   <artifactId>hchat-server</artifactId>
   <version>0.1.0</version>
   <name>hchat-server</name>

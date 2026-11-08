@@ -92,7 +92,7 @@ IM 场景写入频繁、跨表删除少，全部表不建外键，一致性由�
 
 - **版本**：6 个前端包与 `server/pom.xml` 共用一个版本号，`release-check` 校验「包版本 == pom 版本 == tag」，不一致直接 fail，避免"测试全绿、发出去版本对不上"
 - **npm**：包间依赖一律写 `workspace:*`，由 `pnpm publish` 打包时替换成具体版本（发布出去的 tarball 里不含 `workspace:`）；`publishConfig.registry` 固定 `registry.npmjs.org`，避免仓库 `.npmrc` 的镜像源把包发错地方；`pnpm -r publish` 按依赖拓扑依次发；CI 带 `--provenance`
-- **Maven**：`mvn deploy -P release`，profile 里挂 `maven-source-plugin` / `maven-javadoc-plugin` / `maven-gpg-plugin` 与 `central-publishing-maven-plugin`（Central Portal + User Token）。不用已下线的 OSSRH `nexus-staging`；`-Dcentral.autoPublish=false` 可切成人工在 portal 点发布
+- **Maven**：`mvn deploy -P release`，profile 里挂 `maven-source-plugin` / `maven-javadoc-plugin` / `maven-gpg-plugin` 与 `central-publishing-maven-plugin`（Central Portal + User Token）。不用已下线的 OSSRH `nexus-staging`；`-Dcentral.autoPublish=false` 可切成人工在 portal 点发布。`groupId` = 已验证的 namespace `top.hn3.hchat`（Java 包名保持 `com.hchat.server.*`，与坐标解耦）；发布密钥与公钥位置见 `docs/release.md`
 - **LICENSE**：npm 只收包目录内的 LICENSE，仓库里不存 6 份副本，改为打包前由 `scripts/prepare-release.mjs` 从根目录复制
 - **可验证**：`scripts/pack-check.mjs` 真的跑一次 `pnpm pack` 并解开 tarball，断言产物存在、元信息完整、`workspace:` 已替换——比只看 `files` 配置可靠
 - 代价：版本号手工维护（未引入 changesets）；`--provenance` 要求公开仓库 + OIDC；发布的服务端是可执行 fat jar，不适合被当库依赖

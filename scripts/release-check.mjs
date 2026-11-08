@@ -10,7 +10,14 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { DEP_FIELDS, publishablePackages, repoRoot, serverVersion } from './lib/workspace.mjs';
+import {
+  DEP_FIELDS,
+  MAVEN_NAMESPACE,
+  publishablePackages,
+  repoRoot,
+  serverGroupId,
+  serverVersion,
+} from './lib/workspace.mjs';
 
 const errors = [];
 const warnings = [];
@@ -44,6 +51,10 @@ const version = [...versions][0];
 const pomVersion = serverVersion();
 if (pomVersion !== version) {
   fail(`server/pom.xml 版本 ${pomVersion} 与前端包版本 ${version} 不一致（发布前请统一）`);
+}
+const groupId = serverGroupId();
+if (groupId !== MAVEN_NAMESPACE) {
+  fail(`server/pom.xml 的 groupId ${groupId} 与 Maven Central namespace ${MAVEN_NAMESPACE} 不一致（portal 会拒收）`);
 }
 
 const publishableNames = new Set(packages.map((item) => item.pkg.name));

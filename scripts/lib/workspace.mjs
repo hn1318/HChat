@@ -84,6 +84,20 @@ export function topoSort(packages) {
   return sorted;
 }
 
+/** Maven Central 已验证的 namespace；pom 的 groupId 必须与它完全一致。 */
+export const MAVEN_NAMESPACE = 'top.hn3.hchat';
+
+/** 取 <project> 自身的 groupId（排除 <parent> 里的 Spring Boot）。 */
+export function serverGroupId() {
+  const pom = readFileSync(join(repoRoot, 'server/pom.xml'), 'utf8');
+  const body = pom.replace(/<parent>[\s\S]*?<\/parent>/, '');
+  const match = body.match(/<groupId>([^<]+)<\/groupId>/);
+  if (!match) {
+    throw new Error('无法从 server/pom.xml 解析 groupId');
+  }
+  return match[1].trim();
+}
+
 /** 仓库唯一版本号来源：server/pom.xml 的 <version>。 */
 export function serverVersion() {
   const pom = readFileSync(join(repoRoot, 'server/pom.xml'), 'utf8');
