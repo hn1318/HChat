@@ -11,13 +11,12 @@
     <relativePath/>
   </parent>
 
-  <!-- Maven Central 已验证的 namespace；groupId 必须与 portal 里的 namespace 完全一致 -->
   <groupId>top.hn3.hchat</groupId>
   <artifactId>hchat-server</artifactId>
   <version>0.1.0</version>
   <name>hchat-server</name>
   <description>HChat self-hosted chat infrastructure server</description>
-  <url>https://github.com/hchat-dev/hchat</url>
+  <url>https://github.com/hn1318/HChat</url>
 
   <licenses>
     <license>
@@ -31,14 +30,14 @@
     <developer>
       <id>hchat</id>
       <name>HChat contributors</name>
-      <url>https://github.com/hchat-dev/hchat</url>
+      <url>https://github.com/hn1318/HChat</url>
     </developer>
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/hchat-dev/hchat.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/hchat-dev/hchat.git</developerConnection>
-    <url>https://github.com/hchat-dev/hchat/tree/main/server</url>
+    <connection>scm:git:git://github.com/hn1318/HChat.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/hn1318/HChat.git</developerConnection>
+    <url>https://github.com/hn1318/HChat/tree/main/server</url>
     <tag>HEAD</tag>
   </scm>
 

@@ -12,9 +12,9 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/hchat?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true&useSSL=false}
-    username: ${DATABASE_USERNAME:hchat}
-    password: ${DATABASE_PASSWORD:hchat}
+    url: ${DATABASE_URL:jdbc:mysql://10.0.0.21:3306/hchat?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true&useSSL=false}
+    username: root
+    password: qwer1234
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:20}
       connection-timeout: 10000
