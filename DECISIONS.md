@@ -95,6 +95,7 @@ IM 场景写入频繁、跨表删除少，全部表不建外键，一致性由�
 - **Maven**：`mvn deploy -P release`，profile 里挂 `maven-source-plugin` / `maven-javadoc-plugin` / `maven-gpg-plugin` 与 `central-publishing-maven-plugin`（Central Portal + User Token）。不用已下线的 OSSRH `nexus-staging`；`-Dcentral.autoPublish=false` 可切成人工在 portal 点发布。`groupId` = 已验证的 namespace `top.hn3.hchat`（Java 包名保持 `com.hchat.server.*`，与坐标解耦）；发布密钥与公钥位置见 `docs/release.md`
 - **LICENSE**：npm 只收包目录内的 LICENSE，仓库里不存 6 份副本，改为打包前由 `scripts/prepare-release.mjs` 从根目录复制
 - **可验证**：`scripts/pack-check.mjs` 真的跑一次 `pnpm pack` 并解开 tarball，断言产物存在、元信息完整、`workspace:` 已替换——比只看 `files` 配置可靠
+- **tag 必须落在最终提交上**：`release-check --tag` 只比对 tag 名与版本，不比对 tag 指向的提交；CI 会 checkout tag 所指的提交，tag 落后于版本对齐提交时会拿旧代码跑并失败。补提交后要 `git tag -f v<version>` + `git push --force origin refs/tags/v<version>` 重发（见 `docs/release.md`）
 - 代价：版本号手工维护（未引入 changesets）；`--provenance` 要求公开仓库 + OIDC；发布的服务端是可执行 fat jar，不适合被当库依赖
 
 ## 未实现 / 已知限制

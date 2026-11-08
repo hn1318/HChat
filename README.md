@@ -183,7 +183,7 @@ pnpm release:check                                  # 版本、元信息、expor
 pnpm release:pack                                   # 真打一次 tarball 并解开校验
 mvn -f server/pom.xml verify -P release -Dgpg.skip  # 验证 sources / javadoc 附件
 
-git tag v0.1.1 && git push origin main --tags       # 触发发布
+git tag v0.1.1 && git push origin master && git push origin refs/tags/v0.1.1  # 触发发布
 ```
 
 一个版本号管住三处（`packages/*/package.json`、`server/pom.xml`、tag），不一致会被 `release:check` 拦下。

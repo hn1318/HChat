@@ -44,3 +44,6 @@ npm-debug.log*
 
 # 发布前由 scripts/prepare-release.mjs 从根目录复制
 packages/*/LICENSE
+
+# 本机工作记忆（不进版本库）
+.workbuddy/

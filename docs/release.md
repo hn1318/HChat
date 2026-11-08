@@ -111,11 +111,30 @@ pnpm release:check
 pnpm release:pack
 mvn -f server/pom.xml verify -P release -Dgpg.skip
 
-# 3. 提交并打 tag
+# 3. 提交并打 tag（仓库默认分支是 master）
 git commit -am "chore: release v0.1.1"
 git tag v0.1.1
-git push origin main --tags
+git push origin master
+git push origin refs/tags/v0.1.1
 ```
+
+也可以把分支和 tag 一起推：`git push origin master --tags`（会把本地所有 tag 一并推上去）。
+
+### tag 已经推过、后面又补了提交时
+
+`release-check` 只校验 **tag 名**与版本号一致，不校验 tag 指向哪个提交。若 tag 指向旧提交
+（例如版本对齐提交晚于打 tag 的时间），CI 会 checkout 那份旧代码，版本校验必然失败。
+此时要把 tag 移到最新提交并覆盖远端：
+
+```bash
+git tag -f v0.1.1                              # 指向当前 HEAD
+git push origin master
+git push --force origin refs/tags/v0.1.1       # 覆盖远端同名 tag，重新触发 Release
+```
+
+> 强推 tag 会覆盖远端已有的 `v0.1.1` 并再跑一次 Release workflow。若上一次已经成功发布到
+> npm / Maven Central，**同一版本号不能重发**，应升补丁版本（例如 `v0.1.2`）后把三处版本
+> 全量对齐再走一遍；只是 CI 报错、没真正发出去时，才用上面的强推。
 
 也可以在 Actions → **Release** → Run workflow 手动触发，并勾选只发 npm / 只发 Maven / 只推镜像。
 
