@@ -5,6 +5,10 @@
 FROM node:22-alpine AS build
 WORKDIR /repo
 
+# 项目 .npmrc 带国内镜像源；容器内构建统一走官方源（镜像源偶发 500 会让安装失败）
+ENV PNPM_CONFIG_REGISTRY=https://registry.npmjs.org/ \
+    COREPACK_NPM_REGISTRY=https://registry.npmjs.org/
+
 RUN corepack enable
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc tsconfig.base.json turbo.json ./

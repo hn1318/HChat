@@ -30,6 +30,12 @@ concurrency:
 env:
   NODE_VERSION: "22"
   JAVA_VERSION: "21"
+  # CI runner 在境外：项目 .npmrc 里的 npmmirror 偶发 500，会让 pnpm/action-setup
+  # 的自安装器和 pnpm install 一起失败。显式覆盖成官方源，本地 .npmrc 不受影响。
+  # npm_config_registry 作用于 npm CLI（action-setup 用它装 pnpm）；
+  # PNPM_CONFIG_REGISTRY 作用于 pnpm CLI（pnpm 12 不认 npm_config_registry）。
+  npm_config_registry: https://registry.npmjs.org/
+  PNPM_CONFIG_REGISTRY: https://registry.npmjs.org/
 
 jobs:
   check:
@@ -93,7 +99,7 @@ jobs:
         run: pnpm release:pack
 
       # pnpm -r publish 按依赖拓扑发布：shared-types → core-sdk → react/vue/web-component → server-sdk-node
-      # publishConfig.registry 固定指向 registry.npmjs.org，不受 .npmrc 里的镜像源影响
+      # publishConfig.registry 固定指向 registry.npmjs.org；CI 顶层 env 也已把镜像源覆盖成官方源
       - name: Publish to npm
         run: pnpm -r --filter "./packages/**" publish --access public --no-git-checks --provenance
         env:

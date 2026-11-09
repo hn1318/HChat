@@ -42,8 +42,10 @@ hchat-shared-types → hchat-core-sdk → hchat-react-chat / hchat-vue-chat / hc
 
 > npm 已于 2025-11 移除 classic / automation token，`npm token create --type=automation` 不再可用，  
 > 不要再照旧教程找 automation token。  
-> `publishConfig.registry` 固定为 `https://registry.npmjs.org/`，所以仓库 `.npmrc` 里的镜像源  
-> （`registry.npmmirror.com`）只影响安装，不会把包发到镜像。
+> `publishConfig.registry` 固定为 `https://registry.npmjs.org/`，所以本机 `.npmrc` 里的镜像源  
+> （`registry.npmmirror.com`）只影响安装，不会把包发到镜像。  
+> CI 顶层 `env` 用 `npm_config_registry` / `PNPM_CONFIG_REGISTRY` 把 registry 覆盖成官方源，  
+> 避免镜像源 500 拖垮 `pnpm/action-setup` 与 `pnpm install`；仓库里的 `.npmrc` 保持不变。
 
 要发布的 6 个包：`hchat-shared-types`、`hchat-core-sdk`、`hchat-react-chat`、`hchat-vue-chat`、  
 `hchat-web-component-chat`、`hchat-server-sdk-node`。

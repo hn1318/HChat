@@ -2,13 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  # CI runner 在境外：项目 .npmrc 里的 npmmirror 偶发 500，会让 pnpm/action-setup
+  # 的自安装器和 pnpm install 一起失败。显式覆盖成官方源，本地 .npmrc 不受影响。
+  # npm_config_registry 作用于 npm CLI（action-setup 用它装 pnpm）；
+  # PNPM_CONFIG_REGISTRY 作用于 pnpm CLI（pnpm 12 不认 npm_config_registry）。
+  npm_config_registry: https://registry.npmjs.org/
+  PNPM_CONFIG_REGISTRY: https://registry.npmjs.org/
 
 jobs:
   server:
@@ -78,7 +86,7 @@ jobs:
     name: Docker images
     runs-on: ubuntu-latest
     needs: [server, web]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
