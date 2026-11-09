@@ -37,7 +37,7 @@
   <scm>
     <connection>scm:git:git://github.com/hn1318/HChat.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/hn1318/HChat.git</developerConnection>
-    <url>https://github.com/hn1318/HChat/tree/main/server</url>
+    <url>https://github.com/hn1318/HChat/tree/master/server</url>
     <tag>HEAD</tag>
   </scm>
 

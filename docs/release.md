@@ -32,15 +32,28 @@ hchat-shared-types → hchat-core-sdk → hchat-react-chat / hchat-vue-chat / hc
 
 ### 1. npm
 
-1. 在 npmjs.com 开启 2FA
-2. 生成 **Granular Access Token**（或 Automation Token），权限至少含 `Publish`
-3. 仓库 Settings → Secrets → Actions 添加 `NPM_TOKEN`
+1. npmjs.com → Access Tokens 生成 **Granular Access Token**：
+   - Permissions 选 **Read and write**（至少含 `Publish`）
+   - **必须勾选 `Bypass 2FA`**。账号/包要求写操作二次认证时，没有该权限的 token 会让 CI 报
+     `ERR_PNPM_OTP_NON_INTERACTIVE`：注册表要 OTP，但 CI 是非交互终端，没人能输验证码
+   - 限制了 Packages / scopes 时要覆盖下面 6 个包；有效期别设太短
+2. 仓库 Settings → Secrets → Actions 添加 `NPM_TOKEN`
+3. 若账号是 **2FA for writes 且包/组织策略为「disallow tokens」**，只能改用 Trusted Publishing（见下）
 
+> npm 已于 2025-11 移除 classic / automation token，`npm token create --type=automation` 不再可用，  
+> 不要再照旧教程找 automation token。  
 > `publishConfig.registry` 固定为 `https://registry.npmjs.org/`，所以仓库 `.npmrc` 里的镜像源  
 > （`registry.npmmirror.com`）只影响安装，不会把包发到镜像。
 
 要发布的 6 个包：`hchat-shared-types`、`hchat-core-sdk`、`hchat-react-chat`、`hchat-vue-chat`、  
 `hchat-web-component-chat`、`hchat-server-sdk-node`。
+
+**首版发布之后可以切到 Trusted Publishing**（更推荐：无长期 token、天然无 OTP）：
+在 npmjs.com 每个包的 Settings → *Trusted Publisher* 添加 GitHub Actions（owner `hn1318`、
+repo `HChat`、workflow `release.yml`），之后 CI 用 OIDC 直发，可移除 `NPM_TOKEN`。
+包必须**已经存在**于 registry 才能配置 trusted publisher，所以首版仍要靠上面的 token。
+pnpm 12 在 CI 里会先尝试 OIDC 换 token，未配置时日志出现
+`[WARN] Skipped OIDC: ERR_PNPM_AUTH_TOKEN_EXCHANGE ... 404` —— 这只是回退提示，**不是失败原因**。
 
 ### 2. Maven Central
 
@@ -77,12 +90,29 @@ hchat-shared-types → hchat-core-sdk → hchat-react-chat / hchat-vue-chat / hc
    `~/.gnupg` 首次调用仍慢。上面的 `.asc` 是可移植形式，在 Linux / CI 里 `gpg --import private.asc`
    即可使用，不依赖本机钥匙环。
 
-4. **把公钥传到公共 keyserver**（Central 校验签名时会去查，不传会报找不到公钥）：
+4. **把公钥传到公共 keyserver**（Central 校验签名时会去 keyserver 取公钥，**不传必然失败**，
+   表现为 `Deployment ... failed while publishing`）。Central 支持 `keyserver.ubuntu.com` /
+   `keys.openpgp.org` / `pgp.mit.edu`，任选其一：
 
    ```bash
+   # 方式 A：命令行
    gpg --keyserver hkps://keyserver.ubuntu.com --send-keys F44BB3F80D6D16035DD7C55D78D401EC89992ABC
-   # 或在 https://keys.openpgp.org 手动上传（该站需要验证邮箱 UID）
+
+   # 方式 B：HTTP 提交（本机 gpg 不可用时最稳，不依赖钥匙环）
+   curl -X POST --data-urlencode "keytext@.data/gpg/public.asc" \
+     https://keyserver.ubuntu.com/pks/add
+   # 方式 C：网页 https://keyserver.ubuntu.com/ → "Submit a key" → 粘贴 public.asc 全文
    ```
+
+   本机 GnuPG 因 keyboxd 锁文件残留会卡死（见上文），**优先用方式 B/C**。
+   上传后务必验证能被检索，刚上传可能需要几分钟同步：
+
+   ```text
+   https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF44BB3F80D6D16035DD7C55D78D401EC89992ABC
+   https://keys.openpgp.org/vks/v1/by-fingerprint/F44BB3F80D6D16035DD7C55D78D401EC89992ABC
+   ```
+
+   返回 `-----BEGIN PGP PUBLIC KEY BLOCK-----` 才算成功。
 
 5. 仓库 Secrets：
 
@@ -170,13 +200,25 @@ mvn -f server/pom.xml verify -P release -DskipTests
 
 ## 五、失败处理
 
-| 情况              | 处理                                                                                                                   |
-| --------------- | -------------------------------------------------------------------------------------------------------------------- |
-| npm 部分包已发布、部分失败 | 已发布的版本不能再覆盖。补发剩余包：`pnpm --filter hchat-core-sdk publish --access public --no-git-checks`                             |
-| Maven 校验失败      | 到 <https://central.sonatype.com/publishing/deployments> 看具体报错（通常是缺 sources/javadoc、签名或 POM 元信息）；同一版本不能重发，修好后升补丁版本    |
-| 找不到 GPG 公钥       | 公钥没传到 keyserver 或还在同步，见上文第 4 步                                                                                   |
-| 想先人工确认再上线       | `mvn deploy -P release -Dcentral.autoPublish=false`，然后在 portal 点 **Publish**；或在 CI 里把 `central.autoPublish` 改成 false |
-| 只想看 CI 会不会过     | 手动触发 Release，只勾 `publish_*` 中要试的那一项；`check` job 永远会跑                                                                 |
+| 情况 | 处理 |
+| --- | --- |
+| `ERR_PNPM_OTP_NON_INTERACTIVE` | `NPM_TOKEN` 没有 **Bypass 2FA** 权限。重建 Granular Access Token 并勾选该选项；`--otp` 在 CI 里无效（pnpm 非交互时不会把 OTP 传给请求） |
+| `ERR_PNPM_AUTH_TOKEN_EXCHANGE ... 404` | pnpm 12 尝试 Trusted Publishing 的 OIDC 换 token 失败后的**回退警告**，不是失败原因；首版用 token 发布，发布后再配置 trusted publisher |
+| `Deployment ... failed while publishing` | 到 <https://central.sonatype.com/publishing/deployments> 点开对应 deployment（日志里有 ID），看 **Validation** 面板的具体条目。最常见是 GPG 公钥未在 keyserver 可检索、缺 sources/javadoc、POM 元信息不全 |
+| npm 部分包已发布、部分失败 | 已发布的版本不能再覆盖。补发剩余包：`pnpm --filter hchat-core-sdk publish --access public --no-git-checks` |
+| 找不到 GPG 公钥 | 公钥没传到 keyserver 或还在同步，见上文第 4 步；用检索 URL 确认，不要只看「命令没报错」 |
+| 想先人工确认再上线 | `mvn deploy -P release -Dcentral.autoPublish=false`，然后在 portal 点 **Publish**；或在 CI 里把 `central.autoPublish` 改成 false |
+| 只想看 CI 会不会过 | 手动触发 Release，只勾 `publish_*` 中要试的那一项；`check` job 永远会跑 |
+
+**先确认有没有真的发出去，再决定要不要升版本**（npm / Maven 都不允许覆盖已发布版本）：
+
+```text
+https://registry.npmjs.org/hchat-shared-types/0.1.1                 → "Not Found" 表示没发成功
+https://repo1.maven.org/maven2/top/hn3/hchat/hchat-server/0.1.1/    → 404 表示没发成功
+```
+
+两处都不存在时，修完配置**直接重跑同一个 tag** 即可，不用升 `0.1.2`。
+若已有部分包发布成功，则必须升补丁版本并把 6 个 `package.json` + `server/pom.xml` 全量对齐。
 
 ## 六、已知限制
 

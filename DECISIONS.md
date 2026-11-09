@@ -96,6 +96,8 @@ IM 场景写入频繁、跨表删除少，全部表不建外键，一致性由�
 - **LICENSE**：npm 只收包目录内的 LICENSE，仓库里不存 6 份副本，改为打包前由 `scripts/prepare-release.mjs` 从根目录复制
 - **可验证**：`scripts/pack-check.mjs` 真的跑一次 `pnpm pack` 并解开 tarball，断言产物存在、元信息完整、`workspace:` 已替换——比只看 `files` 配置可靠
 - **tag 必须落在最终提交上**：`release-check --tag` 只比对 tag 名与版本，不比对 tag 指向的提交；CI 会 checkout tag 所指的提交，tag 落后于版本对齐提交时会拿旧代码跑并失败。补提交后要 `git tag -f v<version>` + `git push --force origin refs/tags/v<version>` 重发（见 `docs/release.md`）
+- **npm 认证**：CI 用 Granular Access Token + `Bypass 2FA`（npm 2025-11 已移除 classic/automation token）；账号要求写操作 OTP 时没有该权限会报 `ERR_PNPM_OTP_NON_INTERACTIVE`，`--otp` 在非交互 CI 里无效。首版发出后可在 npmjs.com 配 Trusted Publishing（OIDC），去掉长期 token
+- **GPG 公钥必须可从 keyserver 检索**：本地能生成 4 个 `.asc` 不等于 Central 能验签，Central 会去 `keyserver.ubuntu.com` / `keys.openpgp.org` / `pgp.mit.edu` 取公钥；公钥未分发时表现为 `Deployment ... failed while publishing`，上传后要用检索 URL 确认
 - 代价：版本号手工维护（未引入 changesets）；`--provenance` 要求公开仓库 + OIDC；发布的服务端是可执行 fat jar，不适合被当库依赖
 
 ## 未实现 / 已知限制
